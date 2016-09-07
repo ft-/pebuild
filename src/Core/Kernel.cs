@@ -90,6 +90,7 @@ namespace Prebuild.Core
 	    readonly List<SolutionNode> m_Solutions = new List<SolutionNode>();
         string m_Target;
         FrameworkVersion m_TargetFramework; //Overrides all project settings
+        bool m_OverrideProjectSettings;
         string m_Conditionals; //Adds to all project settings
         public string ForcedConditionals { get { return m_Conditionals; } }
 		string m_Clean;
@@ -602,7 +603,7 @@ namespace Prebuild.Core
 					dataNode = preNode;
 
 				dataNode.Parent = parent;
-                if (dataNode is ProjectNode)
+                if (dataNode is ProjectNode && m_OverrideProjectSettings)
                 {
                     ((ProjectNode)dataNode).FrameworkVersion = m_TargetFramework;
                 }
@@ -662,9 +663,12 @@ namespace Prebuild.Core
 
             m_Target = m_CommandLine["target"];
             m_Conditionals = m_CommandLine["conditionals"];
-            if(m_CommandLine["targetframework"] != null)
-                m_TargetFramework = (FrameworkVersion)Enum.Parse (typeof (FrameworkVersion), m_CommandLine["targetframework"]);
-			m_Clean = m_CommandLine["clean"];
+            if (m_CommandLine["targetframework"] != null)
+            {
+                m_TargetFramework = (FrameworkVersion)Enum.Parse(typeof(FrameworkVersion), m_CommandLine["targetframework"]);
+                m_OverrideProjectSettings = true;
+            }
+            m_Clean = m_CommandLine["clean"];
 			string removeDirs = m_CommandLine["removedir"];
 			if(removeDirs != null && removeDirs.Length == 0) 
 			{
